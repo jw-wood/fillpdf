@@ -4,6 +4,8 @@ import pdfrw
 from pdf2image import convert_from_path # Needs conda install -c conda-forge poppler
 from PIL import Image
 from collections import OrderedDict
+from pathlib import Path
+import csv
 
 ANNOT_KEY = '/Annots'               # key for all annotations within a page
 ANNOT_FIELD_KEY = '/T'              # Name of field. i.e. given ID of field
@@ -578,3 +580,44 @@ def get_coordinate_map(input_pdf_path, output_map_path, page_number=1):
         page.draw_line(fitz.Point(x , 12), fitz.Point(x , max_y), color=(1, 0, 0))
     
     doc.save(output_map_path)
+    
+    
+def fill_pdf_batch(output_path, filename_suffix, input_form, tab_del_data_file, column_prefix_file, column_folder_sort):
+    """
+    This will fill out a batch of pdf files with the data from a tab delimited txt file
+    :param output_path: The folder path you want to send the files to
+    :param filename_suffix: How you want the end of the file name in conjunction with the column_prefix_file from the
+    txt file.
+    :param input_form: This is the pdf that has the named form textboxes, check boxes, radio buttons.
+    :param tab_del_data_file: The header line will match the names of the textboxes,
+     check boxes, radio buttons.  The header and form inputs need to match and are case sensitive. Address and address
+     are not the same.
+    :param column_prefix_file:   Input is a number for the column 0 indexed hence if you are viewing the txt file in excel or
+     some other spreadsheet software column A would be 0. This will help make up the file name when saved.  Example would be
+     "Employee Name FileName suffix.pdf"
+    :param column_folder_sort:   Input is a number for the column 0 indexed hence if you are viewing the txt file in excel or
+     some other spreadsheet software column A would be 0.
+    :return: Nothing returns.  It is saved to the folder on the computer in the output_path
+    """
+    # create dict to hold the data from the tab delimited text file
+    data_dict = []
+
+    # open the data file to be read
+    with open(tab_del_data_file) as data_row:
+        # create the data dict for the data
+        data_reader = csv.DictReader(data_row, delimiter='\t')
+        # add the data to data_dict
+        for r in data_reader:
+            data_dict.append(dict(r))
+
+    # loop through the employee_list array and read each employee data
+    for row in data_dict:
+        # retrieve the column for use later when writing the file name
+        file_prefix = list(row.values())[column_prefix_file]
+        # retrieve the column so that we can create a folder for each folder_sort and save by folder_sort column
+        folder_sort = list(row.values())[column_folder_sort]
+        # create the folder if the folder does not exist for the folder_sort otherwise do nothing
+        Path(output_path + folder_sort).mkdir(parents=True, exist_ok=True)
+
+        # fill in the pdf with the data, output the new pdf with a prefix of the employee name and save it to correct loc
+        write_fillable_pdf(input_form, output_path + folder_sort + '\\' + file_prefix + ' ' + filename_suffix, row)    
