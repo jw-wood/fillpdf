@@ -275,11 +275,10 @@ Will bring up this menu
 ##### fill_pdf_batch
  Create a batch of pdfs from an input form and tab delimited file.
 ##### For Example
- # set output folder, file name suffix, form being filled in path, and data file
-output_folder = "c:\\temp\\save\\"
-saved_file_suffix = 'Enrollment Form.pdf' 
-pdf_form = 'Enrollment Form Merge.pdf'
-pdf_form_data = 'Enrollment Form list.txt'
+ output_folder = "c:\\temp\\save\\"
+ saved_file_suffix = 'Enrollment Form.pdf' 
+ pdf_form = 'Enrollment Form Merge.pdf'
+ pdf_form_data = 'Enrollment Form list.txt'
 
 
 fill_pdf_batch(output_folder, saved_file_suffix, pdf_form, pdf_form_data, 1, 0)
